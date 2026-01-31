@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>দর্শন কুইজ (দ্বাদশ শ্রেণী)</title>
+    <style>
+        body { 
+            font-family: 'Kalpurush', 'SolaimanLipi', 'Segoe UI', sans-serif; /* Bengali Fonts */
+            background-color: #1e1e2e; 
+            color: #fff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+        .container { 
+            background-color: #2b2b3b; 
+            padding: 2rem; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+            width: 90%; 
+            max-width: 500px; 
+            text-align: center; 
+        }
+        input { 
+            padding: 12px; 
+            border-radius: 5px; 
+            border: none; 
+            width: 80%; 
+            margin-bottom: 15px; 
+            font-size: 16px;
+            text-align: center;
+        }
+        button { 
+            background-color: #4CAF50; 
+            color: white; 
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 18px; 
+            transition: 0.3s; 
+            width: 100%; 
+            margin-top: 10px; 
+            font-family: inherit;
+        }
+        button:hover { background-color: #45a049; }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        
+        .option-btn { 
+            background-color: #3e3e55; 
+            margin: 8px 0; 
+            text-align: left; 
+            font-size: 16px;
+        }
+        .option-btn:hover { background-color: #50506e; }
+        .hidden { display: none; }
+        
+        #progress-bar { 
+            width: 100%; 
+            background-color: #444; 
+            height: 10px; 
+            border-radius: 5px; 
+            margin-bottom: 20px; 
+            overflow: hidden; 
+        }
+        #progress-fill { 
+            height: 100%; 
+            background-color: #4CAF50; 
+            width: 0%; 
+            transition: 0.3s; 
+        }
+        .math-text {
+            font-family: 'Times New Roman', serif;
+            font-weight: bold;
+            color: #ffd700;
+            padding: 0 5px;
+        }
+        .info-text {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="start-screen">
+        <h2>দর্শন কুইজ (Logic)</h2>
+        <p id="greeting-msg">কুইজ শুরু করার জন্য নাম লিখুন:</p>
+        
+        <input type="text" id="username" placeholder="আপনার পুরো নাম">
+        
+        <p class="info-text">মোট চেষ্টা বাকি: <span id="attempts-left">10</span>/10</p>
+        <button id="start-btn" onclick="startQuiz()">কুইজ শুরু করুন</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div id="progress-bar"><div id="progress-fill"></div></div>
+        <h3 id="question-text">প্রশ্ন লোড হচ্ছে...</h3>
+        <div id="options-container"></div>
+    </div>
+
+    <div id="end-screen" class="hidden">
+        <h2 id="end-message">ফলাফল জমা দেওয়া হচ্ছে...</h2>
+        <h1 id="score-display" style="color: #4CAF50; font-size: 3rem; margin: 10px 0;"></h1>
+        <p id="attempts-display" class="info-text"></p>
+        
+        <button id="retry-btn" onclick="retryQuiz()" class="hidden">আবার চেষ্টা করুন</button>
+    </div>
+</div>
+
+<script>
+    // --- CONFIGURATION ---
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxyXE0nJJULh_Z0ZBLEu4VmqGNf6RqKC8FByCOVvl1V7oej7bttDKexby3vlLldpD28/exec";
+    const MAX_ATTEMPTS = 10;
+
+    // --- BENGALI QUESTIONS (4 Options each) ---
+    const questions = [
+        { 
+            q: "যদি p সত্য (T) এবং q মিথ্যা (F) হয়, তবে <span class='math-text'>p ⊃ q</span> -এর মান কী?", 
+            options: ["সত্য (T)", "মিথ্যা (F)", "অনিশ্চিত", "কোনোটিই নয়"], 
+            answer: 1 
+        },
+        { 
+            q: "<span class='math-text'>T • T</span> -এর মান কী হবে?", 
+            options: ["সত্য (T)", "মিথ্যা (F)", "আপতিক", "স্ববিরোধী"], 
+            answer: 0 
+        },
+        { 
+            q: "বৈকল্পিক বচনের (Disjunction) চিহ্ন কোনটি?", 
+            options: ["• (ডট)", "⊃ (নাল)", "∨ (ভেল)", "≡ (সমমান)"], 
+            answer: 2 
+        },
+        { 
+            q: "যদি p মিথ্যা (F) হয়, তবে <span class='math-text'>p ⊃ q</span> -এর মান কী?", 
+            options: ["সর্বদা সত্য (T)", "সর্বদা মিথ্যা (F)", "q-এর মানের ওপর নির্ভরশীল", "অনিশ্চিত"], 
+            answer: 0 
+        },
+        { 
+            q: "<span class='math-text'>(p • ~p)</span> বচনাকারটি কী রূপ?", 
+            options: ["শতসত্য (Tautology)", "শতমিথ্যা (Self-Contradictory)", "আপতিক (Contingent)", "বৈধ"], 
+            answer: 1 
+        },
+        { 
+            q: "<span class='math-text'>p ≡ q</span> কখন মিথ্যা (F) হয়?", 
+            options: ["যখন মান একই হয়", "যখন মান আলাদা হয়", "যখন উভয়ই সত্য", "যখন উভয়ই মিথ্যা"], 
+            answer: 1 
+        },
+        { 
+            q: "<span class='math-text'>F ∨ F</span> -এর মান কী?", 
+            options: ["সত্য (T)", "মিথ্যা (F)", "সম্ভাব্য", "অজ্ঞাত"], 
+            answer: 1 
+        },
+        { 
+            q: "যদি <span class='math-text'>p = T</span> হয়, তবে <span class='math-text'>~p</span> কী হবে?", 
+            options: ["সত্য (T)", "মিথ্যা (F)", "একই থাকবে", "বলা যাবে না"], 
+            answer: 1 
+        },
+        { 
+            q: "নিচের কোনটি শতসত্য (Tautology) বচন?", 
+            options: ["p ⊃ p", "p • ~p", "p ∨ q", "p ⊃ ~p"], 
+            answer: 0 
+        },
+        { 
+            q: "৩টি গ্রাহক (p, q, r) থাকলে সত্যসারণীতে কতগুলো সারি হবে?", 
+            options: ["৪টি", "৬টি", "৮টি", "৯টি"], 
+            answer: 2 
+        }
+    ];
+
+    // --- STATE VARIABLES ---
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let userName = "";
+    let attempts = 0;
+
+    // --- ON LOAD ---
+    window.onload = function() {
+        // 1. Load Attempts Count
+        attempts = parseInt(localStorage.getItem('quiz_attempts') || 0);
+        document.getElementById('attempts-left').innerText = (MAX_ATTEMPTS - attempts);
+
+        // 2. Check Max Attempts
+        if (attempts >= MAX_ATTEMPTS) {
+            showEndScreen("আপনি সর্বোচ্চ ১০ বার চেষ্টা করেছেন। আর দেওয়া যাবে না।", null);
+            document.getElementById('start-screen').classList.add('hidden');
+            return;
+        }
+
+        // 3. Check for Saved Name
+        const savedName = localStorage.getItem('quiz_username');
+        if (savedName) {
+            userName = savedName;
+            document.getElementById('username').classList.add('hidden'); // Hide input
+            document.getElementById('greeting-msg').innerHTML = `স্বাগতম, <b>${userName}</b>! <br>আপনি কুইজটি শুরু করতে পারেন।`;
+            document.getElementById('start-btn').innerText = "কুইজ শুরু করুন";
+        }
+
+        // 4. Resume Check (If user refreshed in middle)
+        const savedIndex = localStorage.getItem('quiz_index');
+        const savedScore = localStorage.getItem('quiz_score');
+        
+        // Only resume if valid index exists AND user hasn't just finished a round
+        if (savedIndex && parseInt(savedIndex) < questions.length && parseInt(savedIndex) > 0) {
+            currentQuestionIndex = parseInt(savedIndex);
+            score = parseInt(savedScore) || 0;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+    };
+
+    // --- FUNCTIONS ---
+
+    function startQuiz() {
+        // Only get name from input if it's not already saved
+        if (!userName) {
+            const nameInput = document.getElementById('username').value;
+            if (nameInput.trim() === "") { alert("দয়া করে আপনার নাম লিখুন!"); return; }
+            userName = nameInput;
+            localStorage.setItem('quiz_username', userName);
+        }
+
+        // Reset tracking for new attempt
+        currentQuestionIndex = 0;
+        score = 0;
+        localStorage.setItem('quiz_index', 0);
+        localStorage.setItem('quiz_score', 0);
+
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        // Progress Bar
+        let progress = (currentQuestionIndex / questions.length) * 100;
+        document.getElementById('progress-fill').style.width = progress + "%";
+
+        // Show Question
+        const qData = questions[currentQuestionIndex];
+        document.getElementById('question-text').innerHTML = `প্রশ্ন ${currentQuestionIndex + 1}: ${qData.q}`;
+        
+        const optionsDiv = document.getElementById('options-container');
+        optionsDiv.innerHTML = ""; 
+
+        qData.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = "option-btn";
+            btn.innerHTML = opt; 
+            btn.onclick = () => selectOption(index);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    function selectOption(selectedIndex) {
+        if (selectedIndex === questions[currentQuestionIndex].answer) {
+            score++;
+        }
+
+        currentQuestionIndex++;
+        
+        // Save temporary progress
+        localStorage.setItem('quiz_index', currentQuestionIndex);
+        localStorage.setItem('quiz_score', score);
+
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            submitData();
+        }
+    }
+
+    function submitData() {
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('end-screen').classList.remove('hidden');
+        document.getElementById('end-message').innerText = "ফলাফল জমা দেওয়া হচ্ছে...";
+        document.getElementById('retry-btn').classList.add('hidden');
+
+        // Send to Google Sheet
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: userName, score: score + " / " + questions.length })
+        }).then(() => {
+            // Update Attempts
+            attempts++;
+            localStorage.setItem('quiz_attempts', attempts);
+            
+            // Clear progress for next run
+            localStorage.setItem('quiz_index', 0);
+            localStorage.setItem('quiz_score', 0);
+
+            showEndScreen("সফলভাবে জমা হয়েছে!", score);
+        }).catch(err => {
+            console.error(err);
+            document.getElementById('end-message').innerText = "নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।";
+        });
+    }
+
+    function showEndScreen(msg, finalScore) {
+        document.getElementById('end-message').innerText = msg;
+        
+        if(finalScore !== null) {
+            document.getElementById('score-display').innerText = `${finalScore} / ${questions.length}`;
+            
+            const attemptsLeft = MAX_ATTEMPTS - attempts;
+            document.getElementById('attempts-display').innerText = `আপনার ${attempts} নম্বর চেষ্টা সম্পন্ন হয়েছে। আর বাকি: ${attemptsLeft} বার।`;
+
+            if (attempts < MAX_ATTEMPTS) {
+                document.getElementById('retry-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('attempts-display').innerText += " (সীমা শেষ)";
+            }
+        }
+    }
+
+    function retryQuiz() {
+        // Simply reload the page to reset views, localStorage data handles the state
+        location.reload();
+    }
+</script>
+
+</body>
+</html>
