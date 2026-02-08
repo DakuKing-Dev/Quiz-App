@@ -3,328 +3,710 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>দর্শন কুইজ (দ্বাদশ শ্রেণী)</title>
+    <title>WBCHSE Class XII - সাহিত্য চর্চা (Mock Exam)</title>
+    <!-- Google Fonts for Bengali -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    
     <style>
-        body { 
-            font-family: 'Kalpurush', 'SolaimanLipi', 'Segoe UI', sans-serif; /* Bengali Fonts */
-            background-color: #1e1e2e; 
-            color: #fff; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0; 
+        :root {
+            --primary: #1565c0; /* Deep Blue */
+            --secondary: #42a5f5; /* Light Blue */
+            --accent: #ef6c00; /* Orange */
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-main: #37474f;
+            --text-light: #78909c;
+            --border-radius: 16px;
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
         }
-        .container { 
-            background-color: #2b2b3b; 
-            padding: 2rem; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
-            width: 90%; 
-            max-width: 500px; 
-            text-align: center; 
+
+        body {
+            font-family: 'Noto Serif Bengali', serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            user-select: none; /* Anti-copy */
+            -webkit-user-select: none;
         }
-        input { 
-            padding: 12px; 
-            border-radius: 5px; 
-            border: none; 
-            width: 80%; 
-            margin-bottom: 15px; 
-            font-size: 16px;
+
+        /* Container Layout */
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.6s forwards ease-out;
+            display: none; /* ALL screens hidden by default */
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+        }
+        h2 {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            margin-top: 0;
+            font-weight: 500;
+        }
+
+        /* Login Screen Styles */
+        #login-screen {
+            text-align: center;
+            max-width: 500px;
+            margin-top: 8vh;
+            padding: 50px;
+        }
+
+        .hero-icon {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
+
+        .input-group {
+            margin: 35px 0;
+            position: relative;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 18px 25px;
+            font-size: 1.1rem;
+            border: 2px solid #eceff1;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            background: #fafafa;
             text-align: center;
         }
-        button { 
-            background-color: #4CAF50; 
-            color: white; 
-            padding: 12px 20px; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-size: 18px; 
-            transition: 0.3s; 
-            width: 100%; 
-            margin-top: 10px; 
-            font-family: inherit;
+
+        input[type="text"]:focus {
+            border-color: var(--secondary);
+            background: #fff;
+            box-shadow: 0 4px 15px rgba(66, 165, 245, 0.15);
         }
-        button:hover { background-color: #45a049; }
-        button:disabled { background-color: #555; cursor: not-allowed; }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 16px 45px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(21, 101, 192, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(21, 101, 192, 0.4);
+        }
+
+        .btn:disabled {
+            background: #cfd8dc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Loading Screens */
+        #startup-loader, #processing-loader {
+            text-align: center;
+            padding: 80px 0;
+            display: none;
+        }
+
+        .loader-ring {
+            display: inline-block;
+            width: 70px;
+            height: 70px;
+        }
+        .loader-ring:after {
+            content: " ";
+            display: block;
+            width: 50px;
+            height: 50px;
+            margin: 8px;
+            border-radius: 50%;
+            border: 6px solid var(--secondary);
+            border-color: var(--secondary) transparent var(--secondary) transparent;
+            animation: ring 1.2s linear infinite;
+        }
+        @keyframes ring {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Exam Screen */
+        .exam-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            margin: -40px -40px 30px -40px; /* Stretch to edges */
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .student-info {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .timer-badge {
+            background: #fff3e0;
+            color: var(--accent);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            border: 2px solid #ffe0b2;
+            min-width: 110px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(255, 111, 0, 0.1);
+        }
+
+        .timer-badge.critical {
+            background: #ffebee;
+            color: #d32f2f;
+            border-color: #ffcdd2;
+            animation: pulse 1s infinite;
+        }
+
+        /* Questions */
+        .section-header {
+            background: linear-gradient(to right, #e3f2fd, #ffffff);
+            color: var(--primary);
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 40px 0 25px 0;
+            font-weight: 700;
+            border-left: 6px solid var(--secondary);
+            font-size: 1.1rem;
+        }
+
+        .question-card {
+            background: white;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .question-card:hover {
+            border-color: #bbdefb;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            transform: translateY(-2px);
+        }
+
+        .q-text {
+            display: block;
+            font-size: 1.15rem;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
         
-        .option-btn { 
-            background-color: #3e3e55; 
-            margin: 8px 0; 
-            text-align: left; 
-            font-size: 16px;
+        .marks-tag {
+            float: right;
+            background: #eceff1;
+            color: #546e7a;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
         }
-        .option-btn:hover { background-color: #50506e; }
-        .hidden { display: none; }
-        
-        #progress-bar { 
-            width: 100%; 
-            background-color: #444; 
-            height: 10px; 
-            border-radius: 5px; 
-            margin-bottom: 20px; 
-            overflow: hidden; 
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #eceff1;
+            border-radius: 10px;
+            font-family: 'Noto Serif Bengali', serif;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            resize: vertical;
+            background: #fafafa;
+            transition: all 0.3s;
+            box-sizing: border-box;
+            min-height: 60px;
         }
-        #progress-fill { 
-            height: 100%; 
-            background-color: #4CAF50; 
-            width: 0%; 
-            transition: 0.3s; 
+
+        textarea:focus {
+            background: white;
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 4px 12px rgba(66, 165, 245, 0.1);
         }
-        .math-text {
-            font-family: 'Times New Roman', serif;
+
+        /* Result Screen */
+        .score-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: white;
+            border: 8px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
             font-weight: bold;
-            color: #ffd700;
-            padding: 0 5px;
+            color: var(--primary);
+            margin: 30px auto;
+            box-shadow: 0 10px 30px rgba(21, 101, 192, 0.2);
+            font-family: 'Poppins', sans-serif;
         }
-        .info-text {
-            color: #aaa;
-            font-size: 0.9rem;
-            margin-top: 5px;
+
+        .feedback-box {
+            background: #fff8e1;
+            border-left: 5px solid #ffca28;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 40px;
+            text-align: left;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            font-size: 1.05rem;
+            color: #5d4037;
         }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="start-screen">
-        <h2>দর্শন কুইজ (Logic)</h2>
-        <p id="greeting-msg">কুইজ শুরু করার জন্য নাম লিখুন:</p>
+    <!-- SCREEN 1: LOGIN -->
+    <div id="login-screen" class="container">
+        <div class="hero-icon">📝</div>
+        <h1>WBCHSE Class XII</h1>
+        <h2>সাহিত্য চর্চা - হলুদ পোড়া</h2>
         
-        <input type="text" id="username" placeholder="আপনার পুরো নাম">
+        <div style="background: #e1f5fe; color: #0277bd; padding: 20px; border-radius: 12px; margin: 30px 0; text-align: left; font-size: 0.95rem; border: 1px solid #b3e5fc;">
+            <strong>📋 পরীক্ষার নিয়মাবলী:</strong>
+            <ul style="margin: 10px 0 0 20px; padding: 0; line-height: 1.6;">
+                <li>সময়: ২ ঘণ্টা (১২০ মিনিট)।</li>
+                <li>কপি-পেস্ট বা অন্য ট্যাব খোলা নিষিদ্ধ।</li>
+                <li>একবার শুরু হলে টাইমার থামবে না।</li>
+            </ul>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="student-name" placeholder="আপনার পূর্ণ নাম লিখুন (Name)" autocomplete="off">
+        </div>
         
-        <p class="info-text">মোট চেষ্টা বাকি: <span id="attempts-left">10</span>/10</p>
-        <button id="start-btn" onclick="startQuiz()">কুইজ শুরু করুন</button>
+        <button class="btn" onclick="initiateExamSequence()">পরীক্ষা শুরু করুন (Start Exam)</button>
     </div>
 
-    <div id="quiz-screen" class="hidden">
-        <div id="progress-bar"><div id="progress-fill"></div></div>
-        <h3 id="question-text">প্রশ্ন লোড হচ্ছে...</h3>
-        <div id="options-container"></div>
+    <!-- SCREEN 1.5: STARTUP LOADER -->
+    <div id="startup-loader" class="container">
+        <div class="loader-ring"></div>
+        <h3 style="color: var(--primary); margin-top: 25px;">পরীক্ষা প্রস্তুত করা হচ্ছে...</h3>
+        <p style="color: var(--text-light);">আপনার নাম সংরক্ষণ এবং প্রশ্নপত্র লোড করা হচ্ছে।</p>
     </div>
 
-    <div id="end-screen" class="hidden">
-        <h2 id="end-message">ফলাফল জমা দেওয়া হচ্ছে...</h2>
-        <h1 id="score-display" style="color: #4CAF50; font-size: 3rem; margin: 10px 0;"></h1>
-        <p id="attempts-display" class="info-text"></p>
+    <!-- SCREEN 2: EXAM INTERFACE -->
+    <div id="exam-screen" class="container">
+        <div class="exam-header">
+            <div class="student-info">
+                👤 <span id="display-name">Loading...</span>
+            </div>
+            <div id="timer-display" class="timer-badge">--:--:--</div>
+        </div>
         
-        <button id="retry-btn" onclick="retryQuiz()" class="hidden">আবার চেষ্টা করুন</button>
+        <form id="exam-form">
+            <div id="questions-container"></div>
+            
+            <div style="text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px dashed #e0e0e0;">
+                <button type="button" id="submit-btn" class="btn" onclick="submitExam()" disabled style="background: var(--accent);">
+                    উত্তরপত্র জমা দিন (Submit)
+                </button>
+                <p style="font-size: 0.9rem; color: #90a4ae; margin-top: 15px;">
+                    সব প্রশ্নের উত্তর দেওয়া হলে বাটনটি সক্রিয় হবে।
+                </p>
+            </div>
+        </form>
     </div>
-</div>
 
-<script>
-    // --- CONFIGURATION ---
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxyXE0nJJULh_Z0ZBLEu4VmqGNf6RqKC8FByCOVvl1V7oej7bttDKexby3vlLldpD28/exec";
-    const MAX_ATTEMPTS = 10;
+    <!-- SCREEN 3: PROCESSING/GRADING LOADER -->
+    <div id="processing-loader" class="container">
+        <div class="loader-ring"></div>
+        <h3 style="color: var(--primary); margin-top: 25px;">AI উত্তর যাচাই করছে...</h3>
+        <p id="loading-status" style="color: var(--text-light);">Gemini AI খাতা দেখছে, অনুগ্রহ করে অপেক্ষা করুন।</p>
+    </div>
 
-    // --- BENGALI QUESTIONS (4 Options each) ---
-    const questions = [
-        { 
-            q: "যদি p সত্য (T) এবং q মিথ্যা (F) হয়, তবে <span class='math-text'>p ⊃ q</span> -এর মান কী?", 
-            options: ["সত্য (T)", "মিথ্যা (F)", "অনিশ্চিত", "কোনোটিই নয়"], 
-            answer: 1 
-        },
-        { 
-            q: "<span class='math-text'>T • T</span> -এর মান কী হবে?", 
-            options: ["সত্য (T)", "মিথ্যা (F)", "আপতিক", "স্ববিরোধী"], 
-            answer: 0 
-        },
-        { 
-            q: "বৈকল্পিক বচনের (Disjunction) চিহ্ন কোনটি?", 
-            options: ["• (ডট)", "⊃ (নাল)", "∨ (ভেল)", "≡ (সমমান)"], 
-            answer: 2 
-        },
-        { 
-            q: "যদি p মিথ্যা (F) হয়, তবে <span class='math-text'>p ⊃ q</span> -এর মান কী?", 
-            options: ["সর্বদা সত্য (T)", "সর্বদা মিথ্যা (F)", "q-এর মানের ওপর নির্ভরশীল", "অনিশ্চিত"], 
-            answer: 0 
-        },
-        { 
-            q: "<span class='math-text'>(p • ~p)</span> বচনাকারটি কী রূপ?", 
-            options: ["শতসত্য (Tautology)", "শতমিথ্যা (Self-Contradictory)", "আপতিক (Contingent)", "বৈধ"], 
-            answer: 1 
-        },
-        { 
-            q: "<span class='math-text'>p ≡ q</span> কখন মিথ্যা (F) হয়?", 
-            options: ["যখন মান একই হয়", "যখন মান আলাদা হয়", "যখন উভয়ই সত্য", "যখন উভয়ই মিথ্যা"], 
-            answer: 1 
-        },
-        { 
-            q: "<span class='math-text'>F ∨ F</span> -এর মান কী?", 
-            options: ["সত্য (T)", "মিথ্যা (F)", "সম্ভাব্য", "অজ্ঞাত"], 
-            answer: 1 
-        },
-        { 
-            q: "যদি <span class='math-text'>p = T</span> হয়, তবে <span class='math-text'>~p</span> কী হবে?", 
-            options: ["সত্য (T)", "মিথ্যা (F)", "একই থাকবে", "বলা যাবে না"], 
-            answer: 1 
-        },
-        { 
-            q: "নিচের কোনটি শতসত্য (Tautology) বচন?", 
-            options: ["p ⊃ p", "p • ~p", "p ∨ q", "p ⊃ ~p"], 
-            answer: 0 
-        },
-        { 
-            q: "৩টি গ্রাহক (p, q, r) থাকলে সত্যসারণীতে কতগুলো সারি হবে?", 
-            options: ["৪টি", "৬টি", "৮টি", "৯টি"], 
-            answer: 2 
-        }
-    ];
+    <!-- SCREEN 4: RESULTS -->
+    <div id="result-screen" class="container" style="text-align: center;">
+        <h1 style="color: var(--primary);">ফলাফল</h1>
+        <p style="color: var(--text-light); font-size: 1.1rem;">আপনার প্রাপ্ত নম্বর</p>
+        
+        <div class="score-circle">
+            <div>
+                <span id="final-score">0</span><span style="font-size: 1.5rem; color: #b0bec5; font-weight: 500;">/40</span>
+            </div>
+        </div>
+        
+        <div id="ai-feedback-text" class="feedback-box"></div>
+        
+        <p style="margin-top: 40px; color: var(--text-light); font-size: 0.9rem;">
+            ✅ আপনার ফলাফল এবং উত্তরপত্র আমাদের ডেটাবেসে সুরক্ষিতভাবে সংরক্ষিত হয়েছে।
+        </p>
+    </div>
 
-    // --- STATE VARIABLES ---
-    let currentQuestionIndex = 0;
-    let score = 0;
-    let userName = "";
-    let attempts = 0;
+<script type="module">
+    // --- FIREBASE SETUP ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-    // --- ON LOAD ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyBF4YKN5INOcDM-tXpYZhtWo1-V9GjPrzs",
+        authDomain: "exam-bc5ff.firebaseapp.com",
+        projectId: "exam-bc5ff",
+        storageBucket: "exam-bc5ff.firebasestorage.app",
+        messagingSenderId: "754599664499",
+        appId: "1:754599664499:web:af0904450ab52338c94306"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- GEMINI REST API SETUP ---
+    const GEMINI_API_KEY = "AIzaSyAWccJLqZ_W09paDJ6BBmEjlOmEVZ0WaOc";
+    
+    // --- EXAM DATA ---
+    const examData = {
+        saq: [
+            { id: "saq1", q: "১. 'হলুদ পোড়া' গল্পে দামিনীর অসুখের জন্য প্রথমে কাকে ডাকা হয়েছিল?", m: 2, model: "প্রথমে গ্রামের একমাত্র পাস-করা ডাক্তার ধীরেনকে ডাকা হয়েছিল।" },
+            { id: "saq2", q: "২. 'বাঁশটা সরিয়ে দাও'—উক্তিটি কার এবং কেন?", m: 2, model: "উক্তিটি ধীরেনের। শান্তি অশরীরী আটকাতে পোড়া বাঁশ রেখেছিল, যা ধীরেনের মনে মানসিক বাধার সৃষ্টি করেছিল।" },
+            { id: "saq3", q: "৩. বলাই চক্রবর্তীর মৃত্যুর পর কে সম্পত্তির উত্তরাধিকারী হয়?", m: 2, model: "বলাইয়ের ভাইপো নবীন সম্পত্তির উত্তরাধিকারী হয়।" },
+            { id: "saq4", q: "৪. ধীরেনের পেশাগত পরিচয় কী?", m: 2, model: "ধীরেন পেশায় একজন স্কুল শিক্ষক এবং গ্রামের ডাক্তার (বিএসসি পাস)।" },
+            { id: "saq5", q: "৫. গল্পে উল্লিখিত দুটি খুন কী কী?", m: 2, model: "বলাই চক্রবর্তী এবং নবীনের স্ত্রী শুভ্রার খুন।" },
+            { id: "saq6", q: "৬. গ্রামবাসীদের মতে শুভ্রার মৃত্যুর কারণ কী?", m: 2, model: "গ্রামবাসীরা মনে করত বলাইয়ের অতৃপ্ত আত্মা ভর করে শুভ্রাকে খুন করেছে।" },
+            { id: "saq7", q: "৭. গল্পের শেষে ধীরেন কী স্বীকারোক্তি করেছিল?", m: 2, model: "ধীরেন বলেছিল: 'আমি বলাই চক্রবর্তী। শুভ্রাকে আমি খুন করেছি।'" },
+            { id: "saq8", q: "৮. কৃঞ্জু গুণিন ভূত তাড়াতে কী ব্যবহার করেছিল?", m: 2, model: "মন্ত্রপড়া জল এবং পোড়া হলুদ।" },
+            { id: "saq9", q: "৯. শান্তি অশরীরী আটকাতে কী ব্যবস্থা নিয়েছিল?", m: 2, model: "ঘাটের পথে কাঁচা বাঁশের আগামাথা পুড়িয়ে আড়াআড়ি ফেলে রেখেছিল।" },
+            { id: "saq10", q: "১০. ধীরেন বাঁশটি ডিঙোতে পারছিল না কেন?", m: 2, model: "মানসিক বিকার ও কুসংস্কারের প্রভাবে সে নিজেকে অশরীরী ভাবছিল, তাই বিশ্বাস করত সে পোড়া বাঁশ পার হতে পারবে না।" }
+        ],
+        laq: [
+            { id: "laq1", q: "১. 'হলুদ পোড়া' গল্পের নামকরণের সার্থকতা বিচার করো।", m: 5, model: "হলুদ পবিত্রতার প্রতীক হলেও 'পোড়া হলুদ' এখানে অশুভ ও ভৌতিকতার প্রতীক। গল্পের শুরু ও শেষে পোড়া হলুদের গন্ধে চরিত্রের বিকার ঘটে। তাই নামকরণটি ব্যঞ্জনাধর্মী।" },
+            { id: "laq2", q: "২. ধীরেন চরিত্রটি বিশ্লেষণ করো। সে কীভাবে কুসংস্কারের শিকার হলো?", m: 5, model: "ধীরেন শিক্ষিত ও যুক্তিবাদী হয়েও পরিবেশের চাপে এবং স্ত্রীর কুসংস্কারে মানসিকভাবে দুর্বল হয়ে পড়ে, শেষ পর্যন্ত নিজের সত্তা হারিয়ে ফেলে।" },
+            { id: "laq3", q: "৩. 'হলুদ পোড়া' গল্পে বর্ণিত গ্রামীণ কুসংস্কার ও অন্ধবিশ্বাসের চিত্রটি আলোচনা করো।", m: 5, model: "চিকিৎসার বদলে ওঝা ডাকা, অসুখকে ভূতে ধরা ভাবা, পোড়া বাঁশ ও হলুদের ব্যবহার—সব মিলিয়ে এক অন্ধকারাচ্ছন্ন গ্রামীণ সমাজের ছবি ফুটে উঠেছে।" },
+            { id: "laq4", q: "৪. গল্পের শেষে ধীরেনের স্বীকারোক্তি কি ভৌতিক না মনস্তাত্ত্বিক? আলোচনা করো।", m: 5, model: "এটি মনস্তাত্ত্বিক। অপরাধবোধ বা ভয়ের কারণে ধীরেনের মনে 'বলাই'-এর সত্তা আরোপিত হয়। মানিক বন্দ্যোপাধ্যায় এখানে কুসংস্কারের মনস্তত্ত্ব দেখিয়েছেন।" }
+        ]
+    };
+
+    // --- VARIABLES ---
+    let timerInterval;
+    const EXAM_DURATION_MS = 2 * 60 * 60 * 1000; // 2 Hours
+    
+    // --- INIT ---
     window.onload = function() {
-        // 1. Load Attempts Count
-        attempts = parseInt(localStorage.getItem('quiz_attempts') || 0);
-        document.getElementById('attempts-left').innerText = (MAX_ATTEMPTS - attempts);
+        checkExistingSession();
+        preventCheating();
+    };
 
-        // 2. Check Max Attempts
-        if (attempts >= MAX_ATTEMPTS) {
-            showEndScreen("আপনি সর্বোচ্চ ১০ বার চেষ্টা করেছেন। আর দেওয়া যাবে না।", null);
-            document.getElementById('start-screen').classList.add('hidden');
+    function preventCheating() {
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123) return false;
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'u')) return false;
+        }
+    }
+
+    // --- 1. SESSION CHECK LOGIC ---
+    function checkExistingSession() {
+        const studentName = localStorage.getItem('wb_exam_student');
+        const endTime = localStorage.getItem('wb_exam_end_time'); 
+        const status = localStorage.getItem('wb_exam_status'); 
+        
+        if (status === 'submitted') {
+            showResultScreen(localStorage.getItem('wb_exam_score'), localStorage.getItem('wb_exam_feedback'));
             return;
         }
 
-        // 3. Check for Saved Name
-        const savedName = localStorage.getItem('quiz_username');
-        if (savedName) {
-            userName = savedName;
-            document.getElementById('username').classList.add('hidden'); // Hide input
-            document.getElementById('greeting-msg').innerHTML = `স্বাগতম, <b>${userName}</b>! <br>আপনি কুইজটি শুরু করতে পারেন।`;
-            document.getElementById('start-btn').innerText = "কুইজ শুরু করুন";
+        if (studentName && endTime) {
+            const now = Date.now();
+            if (now > parseInt(endTime)) {
+                localStorage.setItem('wb_exam_status', 'submitted'); 
+                alert("আপনার পরীক্ষার সময়সীমা পার হয়ে গেছে।");
+                showResultScreen(0, "Time Expired - No Submission recorded.");
+            } else {
+                // FORCE HIDE LOGIN
+                document.getElementById('login-screen').style.display = 'none';
+                renderExam(studentName);
+                startTicker(parseInt(endTime));
+            }
+        } else {
+            document.getElementById('login-screen').style.display = 'block';
+        }
+    }
+
+    // --- 2. STARTUP SEQUENCE ---
+    window.initiateExamSequence = function() {
+        const nameInput = document.getElementById('student-name').value.trim();
+        if (!nameInput) {
+            alert("অনুগ্রহ করে আপনার নাম লিখুন।");
+            return;
         }
 
-        // 4. Resume Check (If user refreshed in middle)
-        const savedIndex = localStorage.getItem('quiz_index');
-        const savedScore = localStorage.getItem('quiz_score');
+        localStorage.setItem('wb_exam_student', nameInput);
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('startup-loader').style.display = 'block';
+
+        setTimeout(() => {
+            const now = Date.now();
+            const endTime = now + EXAM_DURATION_MS;
+
+            localStorage.setItem('wb_exam_end_time', endTime);
+            localStorage.setItem('wb_exam_status', 'ongoing');
+
+            document.getElementById('startup-loader').style.display = 'none';
+            renderExam(nameInput);
+            startTicker(endTime);
+        }, 2000);
+    };
+
+    // --- 3. TIMER LOGIC ---
+    function startTicker(endTime) {
+        const timerDisplay = document.getElementById('timer-display');
+        updateTimerUI(endTime);
+
+        timerInterval = setInterval(() => {
+            const isExpired = updateTimerUI(endTime);
+            if (isExpired) {
+                clearInterval(timerInterval);
+                alert("সময় শেষ! উত্তর জমা দেওয়া হচ্ছে।");
+                submitExam(true);
+            }
+        }, 1000);
+    }
+
+    function updateTimerUI(endTime) {
+        const now = Date.now();
+        const diff = endTime - now;
+        const timerDisplay = document.getElementById('timer-display');
+
+        if (diff <= 0) {
+            timerDisplay.textContent = "00:00:00";
+            return true;
+        }
+
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        timerDisplay.textContent = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        if (diff < 300000) timerDisplay.classList.add('critical');
+        return false;
+    }
+
+    // --- 4. RENDER UI ---
+    function renderExam(name) {
+        document.getElementById('login-screen').style.display = 'none';
+        const displayName = name || localStorage.getItem('wb_exam_student') || "Student";
+        document.getElementById('exam-screen').style.display = 'block';
+        document.getElementById('display-name').textContent = displayName;
+
+        const container = document.getElementById('questions-container');
+        if (container.innerHTML !== "") return;
+
+        // SAQ
+        container.innerHTML += `<div class="section-header">বিভাগ 'ক': সংক্ষিপ্ত উত্তরধর্মী প্রশ্ন (SAQ)</div>`;
+        examData.saq.forEach((q) => {
+            const savedAns = localStorage.getItem(`ans_${q.id}`) || "";
+            container.innerHTML += `
+                <div class="question-card">
+                    <span class="q-text">${q.q} <span class="marks-tag">${q.m} নম্বর</span></span>
+                    <textarea id="${q.id}" rows="2" placeholder="উত্তর লিখুন..." oninput="saveProgress(this)">${savedAns}</textarea>
+                </div>`;
+        });
+
+        // LAQ
+        container.innerHTML += `<div class="section-header">বিভাগ 'খ': রচনাধর্মী প্রশ্ন (LAQ)</div>`;
+        examData.laq.forEach((q) => {
+            const savedAns = localStorage.getItem(`ans_${q.id}`) || "";
+            container.innerHTML += `
+                <div class="question-card">
+                    <span class="q-text">${q.q} <span class="marks-tag">${q.m} নম্বর</span></span>
+                    <textarea id="${q.id}" rows="6" placeholder="বিস্তারিত উত্তর লিখুন..." oninput="saveProgress(this)">${savedAns}</textarea>
+                </div>`;
+        });
+
+        checkCompletion();
+    }
+
+    // --- 5. PROGRESS SAVING ---
+    window.saveProgress = function(element) {
+        localStorage.setItem(`ans_${element.id}`, element.value);
+        checkCompletion();
+    };
+
+    function checkCompletion() {
+        const inputs = document.querySelectorAll('textarea');
+        let allFilled = true;
+        inputs.forEach(input => {
+            if (input.value.trim().length < 2) allFilled = false;
+        });
+        const btn = document.getElementById('submit-btn');
+        btn.disabled = !allFilled;
+        btn.style.opacity = allFilled ? "1" : "0.6";
+        btn.style.cursor = allFilled ? "pointer" : "not-allowed";
+    }
+
+    // --- 6. SUBMIT & REST API VERIFY ---
+    window.submitExam = async function(force = false) {
+        if (!force && !confirm("আপনি কি নিশ্চিত? একবার জমা দিলে আর পরিবর্তন করা যাবে না।")) return;
+
+        clearInterval(timerInterval);
+        document.getElementById('exam-screen').style.display = 'none';
+        document.getElementById('processing-loader').style.display = 'block';
+
+        const studentAnswers = {};
+        const allQuestions = [...examData.saq, ...examData.laq];
         
-        // Only resume if valid index exists AND user hasn't just finished a round
-        if (savedIndex && parseInt(savedIndex) < questions.length && parseInt(savedIndex) > 0) {
-            currentQuestionIndex = parseInt(savedIndex);
-            score = parseInt(savedScore) || 0;
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('quiz-screen').classList.remove('hidden');
-            loadQuestion();
+        allQuestions.forEach(q => {
+            const val = document.getElementById(q.id)?.value || localStorage.getItem(`ans_${q.id}`) || "উত্তর দেওয়া হয়নি";
+            studentAnswers[q.id] = {
+                question: q.q,
+                user_answer: val,
+                model_answer: q.model,
+                marks: q.m
+            };
+        });
+
+        try {
+            document.getElementById('loading-status').textContent = "AI শিক্ষক খাতা দেখছেন...";
+            
+            // Call REST API
+            const aiResult = await verifyWithGeminiRest(studentAnswers);
+            
+            document.getElementById('loading-status').textContent = "নম্বর সংরক্ষণ করা হচ্ছে...";
+            const savedName = localStorage.getItem('wb_exam_student');
+            
+            await addDoc(collection(db, "exam_submissions"), {
+                name: savedName,
+                answers: studentAnswers,
+                score: aiResult.total_score,
+                feedback: aiResult.breakdown,
+                timestamp: serverTimestamp()
+            });
+
+            localStorage.setItem('wb_exam_status', 'submitted');
+            localStorage.setItem('wb_exam_score', aiResult.total_score);
+            localStorage.setItem('wb_exam_feedback', aiResult.breakdown);
+
+            showResultScreen(aiResult.total_score, aiResult.breakdown);
+
+        } catch (error) {
+            console.error("Submission Error:", error);
+            showResultScreen(localStorage.getItem('wb_exam_score') || 0, "Network Error: Data might not be saved to server, but grading is complete.");
         }
     };
 
-    // --- FUNCTIONS ---
-
-    function startQuiz() {
-        // Only get name from input if it's not already saved
-        if (!userName) {
-            const nameInput = document.getElementById('username').value;
-            if (nameInput.trim() === "") { alert("দয়া করে আপনার নাম লিখুন!"); return; }
-            userName = nameInput;
-            localStorage.setItem('quiz_username', userName);
-        }
-
-        // Reset tracking for new attempt
-        currentQuestionIndex = 0;
-        score = 0;
-        localStorage.setItem('quiz_index', 0);
-        localStorage.setItem('quiz_score', 0);
-
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('quiz-screen').classList.remove('hidden');
-        loadQuestion();
-    }
-
-    function loadQuestion() {
-        // Progress Bar
-        let progress = (currentQuestionIndex / questions.length) * 100;
-        document.getElementById('progress-fill').style.width = progress + "%";
-
-        // Show Question
-        const qData = questions[currentQuestionIndex];
-        document.getElementById('question-text').innerHTML = `প্রশ্ন ${currentQuestionIndex + 1}: ${qData.q}`;
+    async function verifyWithGeminiRest(answersData) {
+        // USING RAW FETCH AS REQUESTED
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
         
-        const optionsDiv = document.getElementById('options-container');
-        optionsDiv.innerHTML = ""; 
-
-        qData.options.forEach((opt, index) => {
-            const btn = document.createElement('button');
-            btn.className = "option-btn";
-            btn.innerHTML = opt; 
-            btn.onclick = () => selectOption(index);
-            optionsDiv.appendChild(btn);
-        });
-    }
-
-    function selectOption(selectedIndex) {
-        if (selectedIndex === questions[currentQuestionIndex].answer) {
-            score++;
-        }
-
-        currentQuestionIndex++;
+        const promptText = `
+        You are a strict Bengali Literature Examiner (শিক্ষক).
+        Task: Grade the student's answers based on the Model Answers.
+        Total Marks: 40.
         
-        // Save temporary progress
-        localStorage.setItem('quiz_index', currentQuestionIndex);
-        localStorage.setItem('quiz_score', score);
-
-        if (currentQuestionIndex < questions.length) {
-            loadQuestion();
-        } else {
-            submitData();
-        }
-    }
-
-    function submitData() {
-        document.getElementById('quiz-screen').classList.add('hidden');
-        document.getElementById('end-screen').classList.remove('hidden');
-        document.getElementById('end-message').innerText = "ফলাফল জমা দেওয়া হচ্ছে...";
-        document.getElementById('retry-btn').classList.add('hidden');
-
-        // Send to Google Sheet
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors', 
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: userName, score: score + " / " + questions.length })
-        }).then(() => {
-            // Update Attempts
-            attempts++;
-            localStorage.setItem('quiz_attempts', attempts);
-            
-            // Clear progress for next run
-            localStorage.setItem('quiz_index', 0);
-            localStorage.setItem('quiz_score', 0);
-
-            showEndScreen("সফলভাবে জমা হয়েছে!", score);
-        }).catch(err => {
-            console.error(err);
-            document.getElementById('end-message').innerText = "নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।";
-        });
-    }
-
-    function showEndScreen(msg, finalScore) {
-        document.getElementById('end-message').innerText = msg;
+        Input Data (JSON): ${JSON.stringify(answersData)}
         
-        if(finalScore !== null) {
-            document.getElementById('score-display').innerText = `${finalScore} / ${questions.length}`;
-            
-            const attemptsLeft = MAX_ATTEMPTS - attempts;
-            document.getElementById('attempts-display').innerText = `আপনার ${attempts} নম্বর চেষ্টা সম্পন্ন হয়েছে। আর বাকি: ${attemptsLeft} বার।`;
+        Rules:
+        1. Compare user_answer with model_answer.
+        2. Give partial marks for partially correct answers.
+        3. 0 marks if empty or irrelevant.
+        4. Output strictly valid JSON ONLY. No markdown code blocks.
+        
+        Output Structure:
+        {
+            "total_score": number,
+            "breakdown": "Bengali Feedback String"
+        }
+        `;
 
-            if (attempts < MAX_ATTEMPTS) {
-                document.getElementById('retry-btn').classList.remove('hidden');
-            } else {
-                document.getElementById('attempts-display').innerText += " (সীমা শেষ)";
+        const requestBody = {
+            contents: [{
+                parts: [{ text: promptText }]
+            }]
+        };
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
             }
+
+            const data = await response.json();
+            const text = data.candidates[0].content.parts[0].text;
+            
+            // Clean markdown if present
+            const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            return JSON.parse(cleanJson);
+        } catch (e) {
+            console.error("REST API Error:", e);
+            return { total_score: 0, breakdown: "AI Connection Error. Please check internet." };
         }
     }
 
-    function retryQuiz() {
-        // Simply reload the page to reset views, localStorage data handles the state
-        location.reload();
+    function showResultScreen(score, feedback) {
+        document.getElementById('processing-loader').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('startup-loader').style.display = 'none';
+        document.getElementById('exam-screen').style.display = 'none';
+        
+        const resScreen = document.getElementById('result-screen');
+        resScreen.style.display = 'block';
+        resScreen.classList.add('container'); 
+        
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('ai-feedback-text').textContent = feedback;
     }
 </script>
 
 </body>
 </html>
+
+
