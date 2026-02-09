@@ -389,10 +389,12 @@
     </div>
 
 <script type="module">
-    // --- FIREBASE SETUP ---
+    // --- FIREBASE IMPORTS ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+    import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app-check.js";
 
+    // --- CONFIGURATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyBF4YKN5INOcDM-tXpYZhtWo1-V9GjPrzs",
         authDomain: "exam-bc5ff.firebaseapp.com",
@@ -402,12 +404,24 @@
         appId: "1:754599664499:web:af0904450ab52338c94306"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // --- GEMINI REST API SETUP ---
     const GEMINI_API_KEY = "AIzaSyAWccJLqZ_W09paDJ6BBmEjlOmEVZ0WaOc";
     
+    // --- APP CHECK SETUP ---
+    // Using the Site Key you provided.
+    const RECAPTCHA_SITE_KEY = "6LfyUWUsAAAAAF785tS07EnDHeNcSD8M0FzX2jty"; 
+
+    // --- INITIALIZATION ---
+    const app = initializeApp(firebaseConfig);
+    
+    // Initialize App Check
+    initializeAppCheck(app, {
+        provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY),
+        isTokenAutoRefreshEnabled: true // Refresher ON
+    });
+    console.log("App Check Initialized with provided Site Key");
+
+    const db = getFirestore(app);
+
     // --- EXAM DATA ---
     const examData = {
         saq: [
@@ -448,7 +462,7 @@
         }
     }
 
-    // --- 1. SESSION CHECK LOGIC ---
+    // --- SESSION CHECK ---
     function checkExistingSession() {
         const studentName = localStorage.getItem('wb_exam_student');
         const endTime = localStorage.getItem('wb_exam_end_time'); 
@@ -466,7 +480,6 @@
                 alert("আপনার পরীক্ষার সময়সীমা পার হয়ে গেছে।");
                 showResultScreen(0, "Time Expired - No Submission recorded.");
             } else {
-                // FORCE HIDE LOGIN
                 document.getElementById('login-screen').style.display = 'none';
                 renderExam(studentName);
                 startTicker(parseInt(endTime));
@@ -476,7 +489,7 @@
         }
     }
 
-    // --- 2. STARTUP SEQUENCE ---
+    // --- START SEQUENCE ---
     window.initiateExamSequence = function() {
         const nameInput = document.getElementById('student-name').value.trim();
         if (!nameInput) {
@@ -492,6 +505,8 @@
             const now = Date.now();
             const endTime = now + EXAM_DURATION_MS;
 
+            const formattedStartTime = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+            localStorage.setItem('wb_exam_start_date', formattedStartTime);
             localStorage.setItem('wb_exam_end_time', endTime);
             localStorage.setItem('wb_exam_status', 'ongoing');
 
@@ -501,7 +516,7 @@
         }, 2000);
     };
 
-    // --- 3. TIMER LOGIC ---
+    // --- TIMER ---
     function startTicker(endTime) {
         const timerDisplay = document.getElementById('timer-display');
         updateTimerUI(endTime);
@@ -535,7 +550,7 @@
         return false;
     }
 
-    // --- 4. RENDER UI ---
+    // --- RENDER UI ---
     function renderExam(name) {
         document.getElementById('login-screen').style.display = 'none';
         const displayName = name || localStorage.getItem('wb_exam_student') || "Student";
@@ -545,7 +560,6 @@
         const container = document.getElementById('questions-container');
         if (container.innerHTML !== "") return;
 
-        // SAQ
         container.innerHTML += `<div class="section-header">বিভাগ 'ক': সংক্ষিপ্ত উত্তরধর্মী প্রশ্ন (SAQ)</div>`;
         examData.saq.forEach((q) => {
             const savedAns = localStorage.getItem(`ans_${q.id}`) || "";
@@ -556,7 +570,6 @@
                 </div>`;
         });
 
-        // LAQ
         container.innerHTML += `<div class="section-header">বিভাগ 'খ': রচনাধর্মী প্রশ্ন (LAQ)</div>`;
         examData.laq.forEach((q) => {
             const savedAns = localStorage.getItem(`ans_${q.id}`) || "";
@@ -570,7 +583,7 @@
         checkCompletion();
     }
 
-    // --- 5. PROGRESS SAVING ---
+    // --- SAVE PROGRESS ---
     window.saveProgress = function(element) {
         localStorage.setItem(`ans_${element.id}`, element.value);
         checkCompletion();
@@ -588,7 +601,7 @@
         btn.style.cursor = allFilled ? "pointer" : "not-allowed";
     }
 
-    // --- 6. SUBMIT & REST API VERIFY ---
+    // --- SUBMIT ---
     window.submitExam = async function(force = false) {
         if (!force && !confirm("আপনি কি নিশ্চিত? একবার জমা দিলে আর পরিবর্তন করা যাবে না।")) return;
 
@@ -612,19 +625,26 @@
         try {
             document.getElementById('loading-status').textContent = "AI শিক্ষক খাতা দেখছেন...";
             
-            // Call REST API
             const aiResult = await verifyWithGeminiRest(studentAnswers);
             
             document.getElementById('loading-status').textContent = "নম্বর সংরক্ষণ করা হচ্ছে...";
             const savedName = localStorage.getItem('wb_exam_student');
+            const startTimeStr = localStorage.getItem('wb_exam_start_date') || "Unknown";
+            const submissionTimeStr = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
             
-            await addDoc(collection(db, "exam_submissions"), {
-                name: savedName,
-                answers: studentAnswers,
-                score: aiResult.total_score,
-                feedback: aiResult.breakdown,
-                timestamp: serverTimestamp()
-            });
+            try {
+                await addDoc(collection(db, "exam_submissions"), {
+                    student_name: savedName,
+                    answers: studentAnswers,
+                    score: aiResult.total_score,
+                    feedback: aiResult.breakdown,
+                    start_time: startTimeStr,
+                    submission_time: submissionTimeStr,
+                    timestamp: serverTimestamp()
+                });
+            } catch (dbError) {
+                console.error("Firebase DB Error:", dbError);
+            }
 
             localStorage.setItem('wb_exam_status', 'submitted');
             localStorage.setItem('wb_exam_score', aiResult.total_score);
@@ -634,13 +654,13 @@
 
         } catch (error) {
             console.error("Submission Error:", error);
-            showResultScreen(localStorage.getItem('wb_exam_score') || 0, "Network Error: Data might not be saved to server, but grading is complete.");
+            showResultScreen(localStorage.getItem('wb_exam_score') || 0, "Error: " + error.message);
         }
     };
 
     async function verifyWithGeminiRest(answersData) {
-        // USING RAW FETCH AS REQUESTED
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        // USING GEMINI-1.5-FLASH
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
         
         const promptText = `
         You are a strict Bengali Literature Examiner (শিক্ষক).
@@ -668,27 +688,22 @@
             }]
         };
 
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody)
-            });
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+        });
 
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            const text = data.candidates[0].content.parts[0].text;
-            
-            // Clean markdown if present
-            const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
-            return JSON.parse(cleanJson);
-        } catch (e) {
-            console.error("REST API Error:", e);
-            return { total_score: 0, breakdown: "AI Connection Error. Please check internet." };
+        if (!response.ok) {
+            const errorBody = await response.text();
+            console.error("AI Error:", errorBody);
+            throw new Error(`AI API Failed (${response.status}). Check 'Generative Language API' in Google Console.`);
         }
+
+        const data = await response.json();
+        const text = data.candidates[0].content.parts[0].text;
+        const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(cleanJson);
     }
 
     function showResultScreen(score, feedback) {
