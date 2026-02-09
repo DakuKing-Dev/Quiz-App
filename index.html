@@ -12,6 +12,7 @@
             --primary: #1565c0; /* Deep Blue */
             --secondary: #42a5f5; /* Light Blue */
             --accent: #ef6c00; /* Orange */
+            --success: #2e7d32; /* Green */
             --bg-color: #f5f7fa;
             --card-bg: #ffffff;
             --text-main: #37474f;
@@ -115,7 +116,7 @@
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 8px 20px rgba(21, 101, 192, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s;
             font-family: 'Poppins', sans-serif;
             font-weight: 600;
             letter-spacing: 0.5px;
@@ -129,8 +130,19 @@
         .btn:disabled {
             background: #cfd8dc;
             cursor: not-allowed;
-            box-shadow: none;
             transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-active {
+            background: linear-gradient(135deg, var(--success), #43a047) !important;
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(46, 125, 50, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
         }
 
         /* Loading Screens */
@@ -353,11 +365,11 @@
             <div id="questions-container"></div>
             
             <div style="text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px dashed #e0e0e0;">
-                <button type="button" id="submit-btn" class="btn" onclick="submitExam()" disabled style="background: var(--accent);">
-                    উত্তরপত্র জমা দিন (Submit)
+                <button type="button" id="submit-btn" class="btn" onclick="submitExam()" disabled>
+                    Loading...
                 </button>
-                <p style="font-size: 0.9rem; color: #90a4ae; margin-top: 15px;">
-                    সব প্রশ্নের উত্তর দেওয়া হলে বাটনটি সক্রিয় হবে।
+                <p id="progress-text" style="font-size: 0.9rem; color: #90a4ae; margin-top: 15px;">
+                    সব প্রশ্নের উত্তর দিন
                 </p>
             </div>
         </form>
@@ -405,9 +417,6 @@
     };
 
     const GEMINI_API_KEY = "AIzaSyAWccJLqZ_W09paDJ6BBmEjlOmEVZ0WaOc";
-    
-    // --- APP CHECK SETUP ---
-    // Using the Site Key you provided.
     const RECAPTCHA_SITE_KEY = "6LfyUWUsAAAAAF785tS07EnDHeNcSD8M0FzX2jty"; 
 
     // --- INITIALIZATION ---
@@ -416,9 +425,9 @@
     // Initialize App Check
     initializeAppCheck(app, {
         provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY),
-        isTokenAutoRefreshEnabled: true // Refresher ON
+        isTokenAutoRefreshEnabled: true 
     });
-    console.log("App Check Initialized with provided Site Key");
+    console.log("App Check Initialized");
 
     const db = getFirestore(app);
 
@@ -560,30 +569,37 @@
         const container = document.getElementById('questions-container');
         if (container.innerHTML !== "") return;
 
-        container.innerHTML += `<div class="section-header">বিভাগ 'ক': সংক্ষিপ্ত উত্তরধর্মী প্রশ্ন (SAQ)</div>`;
+        let html = "";
+        
+        // SAQ
+        html += `<div class="section-header">বিভাগ 'ক': সংক্ষিপ্ত উত্তরধর্মী প্রশ্ন (SAQ)</div>`;
         examData.saq.forEach((q) => {
             const savedAns = localStorage.getItem(`ans_${q.id}`) || "";
-            container.innerHTML += `
+            html += `
                 <div class="question-card">
                     <span class="q-text">${q.q} <span class="marks-tag">${q.m} নম্বর</span></span>
-                    <textarea id="${q.id}" rows="2" placeholder="উত্তর লিখুন..." oninput="saveProgress(this)">${savedAns}</textarea>
+                    <textarea id="${q.id}" rows="2" placeholder="উত্তর লিখুন..." oninput="window.saveProgress(this)">${savedAns}</textarea>
                 </div>`;
         });
 
-        container.innerHTML += `<div class="section-header">বিভাগ 'খ': রচনাধর্মী প্রশ্ন (LAQ)</div>`;
+        // LAQ
+        html += `<div class="section-header">বিভাগ 'খ': রচনাধর্মী প্রশ্ন (LAQ)</div>`;
         examData.laq.forEach((q) => {
             const savedAns = localStorage.getItem(`ans_${q.id}`) || "";
-            container.innerHTML += `
+            html += `
                 <div class="question-card">
                     <span class="q-text">${q.q} <span class="marks-tag">${q.m} নম্বর</span></span>
-                    <textarea id="${q.id}" rows="6" placeholder="বিস্তারিত উত্তর লিখুন..." oninput="saveProgress(this)">${savedAns}</textarea>
+                    <textarea id="${q.id}" rows="6" placeholder="বিস্তারিত উত্তর লিখুন..." oninput="window.saveProgress(this)">${savedAns}</textarea>
                 </div>`;
         });
 
+        container.innerHTML = html;
+        
+        // Run check once to initialize button state
         checkCompletion();
     }
 
-    // --- SAVE PROGRESS ---
+    // --- SAVE PROGRESS & CHECK ---
     window.saveProgress = function(element) {
         localStorage.setItem(`ans_${element.id}`, element.value);
         checkCompletion();
@@ -591,14 +607,30 @@
 
     function checkCompletion() {
         const inputs = document.querySelectorAll('textarea');
-        let allFilled = true;
+        let filledCount = 0;
+        const totalCount = inputs.length;
+
         inputs.forEach(input => {
-            if (input.value.trim().length < 2) allFilled = false;
+            // Relaxed validation: Just check if not empty
+            if (input.value.trim().length > 0) filledCount++;
         });
+
         const btn = document.getElementById('submit-btn');
-        btn.disabled = !allFilled;
-        btn.style.opacity = allFilled ? "1" : "0.6";
-        btn.style.cursor = allFilled ? "pointer" : "not-allowed";
+        const isComplete = filledCount === totalCount;
+
+        if (isComplete) {
+            btn.disabled = false;
+            btn.innerHTML = "উত্তরপত্র জমা দিন (Submit)";
+            btn.classList.add("btn-active");
+            document.getElementById('progress-text').textContent = "আপনি সব প্রশ্নের উত্তর দিয়েছেন।";
+            document.getElementById('progress-text').style.color = "green";
+        } else {
+            btn.disabled = true;
+            btn.classList.remove("btn-active");
+            btn.innerHTML = `Submit (${filledCount}/${totalCount})`;
+            document.getElementById('progress-text').textContent = "সব প্রশ্নের উত্তর দিলে বাটনটি সক্রিয় হবে।";
+            document.getElementById('progress-text').style.color = "#90a4ae";
+        }
     }
 
     // --- SUBMIT ---
@@ -625,6 +657,7 @@
         try {
             document.getElementById('loading-status').textContent = "AI শিক্ষক খাতা দেখছেন...";
             
+            // Call REST API
             const aiResult = await verifyWithGeminiRest(studentAnswers);
             
             document.getElementById('loading-status').textContent = "নম্বর সংরক্ষণ করা হচ্ছে...";
@@ -723,5 +756,3 @@
 
 </body>
 </html>
-
-
