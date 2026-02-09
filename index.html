@@ -575,10 +575,11 @@
         html += `<div class="section-header">বিভাগ 'ক': সংক্ষিপ্ত উত্তরধর্মী প্রশ্ন (SAQ)</div>`;
         examData.saq.forEach((q) => {
             const savedAns = localStorage.getItem(`ans_${q.id}`) || "";
+            // Added class 'exam-answer-box' for precise counting
             html += `
                 <div class="question-card">
                     <span class="q-text">${q.q} <span class="marks-tag">${q.m} নম্বর</span></span>
-                    <textarea id="${q.id}" rows="2" placeholder="উত্তর লিখুন..." oninput="window.saveProgress(this)">${savedAns}</textarea>
+                    <textarea class="exam-answer-box" id="${q.id}" rows="2" placeholder="উত্তর লিখুন..." oninput="window.saveProgress(this)">${savedAns}</textarea>
                 </div>`;
         });
 
@@ -586,16 +587,16 @@
         html += `<div class="section-header">বিভাগ 'খ': রচনাধর্মী প্রশ্ন (LAQ)</div>`;
         examData.laq.forEach((q) => {
             const savedAns = localStorage.getItem(`ans_${q.id}`) || "";
+            // Added class 'exam-answer-box' for precise counting
             html += `
                 <div class="question-card">
                     <span class="q-text">${q.q} <span class="marks-tag">${q.m} নম্বর</span></span>
-                    <textarea id="${q.id}" rows="6" placeholder="বিস্তারিত উত্তর লিখুন..." oninput="window.saveProgress(this)">${savedAns}</textarea>
+                    <textarea class="exam-answer-box" id="${q.id}" rows="6" placeholder="বিস্তারিত উত্তর লিখুন..." oninput="window.saveProgress(this)">${savedAns}</textarea>
                 </div>`;
         });
 
         container.innerHTML = html;
         
-        // Run check once to initialize button state
         checkCompletion();
     }
 
@@ -606,17 +607,20 @@
     };
 
     function checkCompletion() {
-        const inputs = document.querySelectorAll('textarea');
+        // Updated to use the specific class we added
+        const inputs = document.querySelectorAll('.exam-answer-box');
         let filledCount = 0;
-        const totalCount = inputs.length;
+        // Hardcoded total based on data source to prevent any "Ghost Question" error
+        const totalCount = examData.saq.length + examData.laq.length; // Always 14
 
         inputs.forEach(input => {
-            // Relaxed validation: Just check if not empty
             if (input.value.trim().length > 0) filledCount++;
         });
 
         const btn = document.getElementById('submit-btn');
-        const isComplete = filledCount === totalCount;
+        // Ensure filledCount doesn't visually exceed totalCount
+        const displayCount = Math.min(filledCount, totalCount); 
+        const isComplete = displayCount === totalCount;
 
         if (isComplete) {
             btn.disabled = false;
@@ -627,7 +631,7 @@
         } else {
             btn.disabled = true;
             btn.classList.remove("btn-active");
-            btn.innerHTML = `Submit (${filledCount}/${totalCount})`;
+            btn.innerHTML = `Submit (${displayCount}/${totalCount})`;
             document.getElementById('progress-text').textContent = "সব প্রশ্নের উত্তর দিলে বাটনটি সক্রিয় হবে।";
             document.getElementById('progress-text').style.color = "#90a4ae";
         }
